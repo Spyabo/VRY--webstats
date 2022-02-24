@@ -87,7 +87,7 @@ def getrr(username):
     }
     r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', headers=headers)
     rr = re.findall('              ([0-9]{2,4})', r.text)
-    print(rr)
+    #print(rr)
     #print(r.text)
     if rr == []: 
         return "-"
