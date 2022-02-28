@@ -40,9 +40,8 @@ server = ""
 def program_exit(status: int):  # so we don't need to import the entire sys module
     log(f"exited program with error code {status}")
     raise SystemExit(status)
-
-def winRate(username):
-    #time.sleep(2.5)
+    
+def scraper(username):
     parsed = f"{username.split('#')[0]}%23{username.split('#')[1]}"
     headers = {
         'User-Agent': 'Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion',
@@ -52,41 +51,29 @@ def winRate(username):
     }
     r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', headers=headers)
     WinRate = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
-    #float(WinRate[3])
+    HeadShot = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
+    rr = re.findall('              ([0-9]{2,4})', r.text)
+    Agents = re.findall('<span class="agent__name" data-v-c68f241e data-v-5c0ca8ee>([a-zA-Z]+[/]*[a-zA-Z]+)', r.text)
+    return WinRate, HeadShot, rr, Agents
+
+def winRate(WinRate):
+    #WinRate = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
     if WinRate == []: 
         return "-"
     else: 
         if len(WinRate) > 0:  
             return WinRate[3] + "%"
 
-def headShot(username):
-    parsed = f"{username.split('#')[0]}%23{username.split('#')[1]}"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion',
-        'Accept': 'application/json, text/plain, /',
-        'Accept-Language': 'en',
-        'Connection': 'keep-alive',
-    }
-    r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', headers=headers)
-    HeadShot = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
+def headShot(HeadShot):
+    #HeadShot = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
     if HeadShot == []: 
         return "-"
     else: 
         if len(HeadShot) > 0:  
             return HeadShot[2] + "%"
 
-def getrr(username):
-    #time.sleep(2.5)
-    parsed = f"{username.split('#')[0]}%23{username.split('#')[1]}"
-    #print(parsed)
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion',
-        'Accept': 'application/json, text/plain, /',
-        'Accept-Language': 'en',
-        'Connection': 'keep-alive',
-    }
-    r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', headers=headers)
-    rr = re.findall('              ([0-9]{2,4})', r.text)
+def getrr(rr):
+    #rr = re.findall('              ([0-9]{2,4})', r.text)
     #print(rr)
     #print(r.text)
     if rr == []: 
@@ -95,18 +82,8 @@ def getrr(username):
         if len(rr) > 0: 
             return max(rr)
 
-def mostPlayed(username):
-    #time.sleep(2.5)
-    parsed = f"{username.split('#')[0]}%23{username.split('#')[1]}"
-    #print(parsed)
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion',
-        'Accept': 'application/json, text/plain, /',
-        'Accept-Language': 'en',
-        'Connection': 'keep-alive',
-    }
-    r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', headers=headers)
-    Agents = re.findall('<span class="agent__name" data-v-c68f241e data-v-5c0ca8ee>([a-zA-Z]+[/]*[a-zA-Z]+)', r.text)
+def mostPlayed(Agents):
+    #Agents = re.findall('<span class="agent__name" data-v-c68f241e data-v-5c0ca8ee>([a-zA-Z]+[/]*[a-zA-Z]+)', r.text)
     mystring=' '.join(map(str,Agents))
     return mystring 
     
@@ -228,19 +205,23 @@ try:
                         
                         #Winrate
                         name = names[player["Subject"]]
-                        WinRate = winRate(name)
+                        x = scraper(name)
+                        WinRate = winRate(x[0])
 
                         #Headshot%
                         name = names[player["Subject"]]
-                        HeadShot = headShot(name)
+                        x = scraper(name)
+                        HeadShot = headShot(x[1])
                         
                         # Top 3 Played Agents
                         name = names[player["Subject"]]
-                        MostPlayed = mostPlayed(name)
+                        x = scraper(name)
+                        MostPlayed = mostPlayed(x[3])
 
                         # Peak RR
                         name = names[player["Subject"]]
-                        peakRR = getrr(name)
+                        x = scraper(name)
+                        peakRR = getrr(x[2])
 
                         # NAME
                         name = Namecolor
@@ -256,7 +237,6 @@ try:
 
                         # RANK RATING
                         rr = playerRank[1]
-
 
                         # PEAK RANK
                         peakRank = NUMBERTORANKS[playerRank[3]]
@@ -349,19 +329,23 @@ try:
 
                         #Winrate
                         name = names[player["Subject"]]
-                        WinRate = winRate(name)
+                        x = scraper(name)
+                        WinRate = winRate(x[0])
 
                         #Headshot%
                         name = names[player["Subject"]]
-                        HeadShot = headShot(name)
+                        x = scraper(name)
+                        HeadShot = headShot(x[1])
                         
                         # Top 3 Played Agents
                         name = names[player["Subject"]]
-                        MostPlayed = mostPlayed(name)
+                        x = scraper(name)
+                        MostPlayed = mostPlayed(x[3])
 
                         # Peak RR
                         name = names[player["Subject"]]
-                        peakRR = getrr(name)
+                        x = scraper(name)
+                        peakRR = getrr(x[2])
 
                         # VIEWS
                         # views = get_views(names[player["Subject"]])
@@ -426,11 +410,13 @@ try:
                         name = names[player["Subject"]]
                         
                         #Winrate
-                        WinRate = winRate(name)
+                        x = scraper(name)
+                        WinRate = winRate(x[0])
                         #WRcolor = colors.Winrate_to_color(WinRate)
 
                         #Headshot%
-                        HeadShot = headShot(name)
+                        x = scraper(name)
+                        HeadShot = headShot(x[1])
 
                         # RANK
                         rankName = NUMBERTORANKS[playerRank[0]]
@@ -442,10 +428,12 @@ try:
                         peakRank = NUMBERTORANKS[playerRank[3]]
 
                         # Top 3 Played Agents
-                        MostPlayed = mostPlayed(name)
+                        x = scraper(name)
+                        MostPlayed = mostPlayed(x[3])
 
                         # Peak RR
-                        peakRR = getrr(name)
+                        x = scraper(name)
+                        peakRR = getrr(x[2])
 
                         # LEADERBOARD
                         leaderboard = playerRank[2]
