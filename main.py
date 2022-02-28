@@ -33,6 +33,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 os.system('cls')
 os.system(f"title VALORANT rank yoinker v{version}")
+os.system("mode con cols=170 lines=25")
 
 server = ""
 
