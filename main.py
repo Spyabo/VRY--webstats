@@ -1,3 +1,4 @@
+from tkinter.font import families
 from tokenize import group
 import traceback
 import re
@@ -37,7 +38,6 @@ os.system("mode con cols=170 lines=25")
 
 server = ""
 
-
 def program_exit(status: int):  # so we don't need to import the entire sys module
     log(f"exited program with error code {status}")
     raise SystemExit(status)
@@ -45,16 +45,16 @@ def program_exit(status: int):  # so we don't need to import the entire sys modu
 def scraper(username):
     parsed = f"{username.split('#')[0]}%23{username.split('#')[1]}"
     headers = {
-        'User-Agent': 'Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101 Firefox/68.0',
         'Accept': 'application/json, text/plain, /',
         'Accept-Language': 'en',
         'Connection': 'keep-alive',
     }
-    r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', headers=headers)
+    r = requests.get(f'https://tracker.gg/valorant/profile/riot/{parsed}/overview?playlist=competitive', timeout=20, headers=headers)
     WinRate = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
     HeadShot = re.findall('data-v-309b1f1e>((?:\d+\.\d*)|(?:\.?\d+))', r.text)
     rr = re.findall('              ([0-9]{2,4})', r.text)
-    Agents = re.findall('<span class="agent__name" data-v-c68f241e data-v-5c0ca8ee>([a-zA-Z]+[/]*[a-zA-Z]+)', r.text)
+    Agents = re.findall('<span class="agent__name" data-v-38f61d99 data-v-5c0ca8ee>([a-zA-Z]+[/]*[a-zA-Z]+)', r.text)
     return WinRate, HeadShot, rr, Agents
 
 def winRate(WinRate):
@@ -386,6 +386,7 @@ try:
                                               ])
                         bar()
             if game_state == "MENUS":
+
                 Players = menu.get_party_members(Requests.puuid, presence)
                 names = namesClass.get_names_from_puuids(Players)
                 with alive_bar(total=len(Players), title='Fetching Players', bar='classic2') as bar:
